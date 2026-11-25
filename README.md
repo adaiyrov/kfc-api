@@ -25,6 +25,8 @@ Each request needs a public Polymarket outcome token ID and a cutoff with a time
 3. Run the workflow.
 4. Download the `historical-prices-...` artifact from the completed run.
 
+Pushes to `main` also run the included UFC 300 example as a live connectivity check.
+
 The artifact contains `prices.json` and `prices.csv`. A successful row includes the selected price, its observation time, and `resolution_seconds`. `not_found` means Polymarket had no observation at or before that cutoff.
 
 ## Run locally

@@ -1,6 +1,8 @@
 name: Fetch historical prices
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       requests_json:
@@ -25,7 +27,12 @@ jobs:
       - name: Run unit tests
         run: python -m unittest -v
       - name: Fetch point-in-time prices
-        run: python fetch_prices.py --output-dir output
+        run: |
+          if [ -n "$REQUEST_JSON" ]; then
+            python fetch_prices.py --output-dir output
+          else
+            python fetch_prices.py --input requests.example.json --output-dir output
+          fi
       - name: Upload JSON and CSV
         uses: actions/upload-artifact@v4
         with:
