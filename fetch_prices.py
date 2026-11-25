@@ -125,6 +125,8 @@ def main() -> int:
     source.add_argument("--input", type=Path, help="JSON request file")
     source.add_argument("--requests-json", help="JSON request array")
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
+    parser.add_argument("--require-all", action="store_true",
+                        help="exit unsuccessfully if any requested price is unavailable")
     args = parser.parse_args()
     raw = args.input.read_text() if args.input else (args.requests_json or os.environ.get("REQUEST_JSON", ""))
     requests = load_requests(raw)
@@ -132,7 +134,7 @@ def main() -> int:
     write_results(results, args.output_dir)
     found = sum(item["status"] == "ok" for item in results)
     print(f"Fetched {found}/{len(results)} point-in-time prices into {args.output_dir}")
-    return 0
+    return 1 if args.require_all and found != len(results) else 0
 
 
 if __name__ == "__main__":
