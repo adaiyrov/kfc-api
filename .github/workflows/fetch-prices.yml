@@ -1,0 +1,35 @@
+name: Fetch historical prices
+
+on:
+  workflow_dispatch:
+    inputs:
+      requests_json:
+        description: 'JSON array of token_id, cutoff, and optional request_id objects'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REQUEST_JSON: ${{ inputs.requests_json }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run unit tests
+        run: python -m unittest -v
+      - name: Fetch point-in-time prices
+        run: python fetch_prices.py --output-dir output
+      - name: Upload JSON and CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-prices-${{ github.run_id }}
+          path: output/
+          if-no-files-found: error
+          retention-days: 30
