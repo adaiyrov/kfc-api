@@ -1,0 +1,34 @@
+name: Fetch saved price batch
+
+on:
+  push:
+    branches: [main]
+    paths: [requests/pending.json]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify worker
+        run: python -m unittest -v
+      - name: Fetch one observation per token
+        run: python fetch_prices.py --input requests/pending.json --output-dir output
+      - name: Commit public result
+        run: |
+          mkdir -p results
+          cp output/prices.json results/latest.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/latest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record historical price batch'
+            git push
+          fi

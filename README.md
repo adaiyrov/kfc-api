@@ -41,3 +41,7 @@ python -m unittest -v
 ## Data rule
 
 The worker uses Polymarket Data API v2 `/prices-history?token_id=...&as_of=...`. The `as_of` request is inclusive and returns the latest observation at or before the cutoff. The worker rejects a response whose timestamp is later than the requested cutoff.
+
+## SSH-only batch return
+
+If GitHub CLI artifact download is unavailable, put a request array in `requests/pending.json` and push it to `main`. The `Fetch saved price batch` workflow uses the same worker and commits its public result to `results/latest.json`, which can be fetched with ordinary Git over SSH. These files contain only public token IDs and historical prices; do not put secrets in a request.
